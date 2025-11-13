@@ -155,7 +155,7 @@ export const Home = () => {
   const styles = {
     page: {
       minHeight: '100%',
-      background: 'linear-gradient(135deg, #0ea5e9 0%, #a855f7 50%, #f97316 100%)',
+      background: 'transparent',
       padding: '24px 16px',
     },
     container: {
