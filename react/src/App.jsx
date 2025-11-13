@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Routes, Route, Link, Navigate, useParams } from 'react-router-dom';
+import { Routes, Route, Link, Navigate } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
 import './App.css';
 
@@ -7,6 +7,9 @@ import { Home } from './components/Home';
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
 import Profile from './components/Profile';
+import Create from './components/Listings/Create';
+import Edit from './components/Listings/Edit';
+import Detail from './components/Listings/Detail';
 
 function ProtectedRoute({ children }) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -39,35 +42,6 @@ function Header({ authed }) {
         </ul>
       </nav>
     </header>
-  );
-}
-
-function NewAdPage() {
-  return (
-    <section className="page" data-easytag="id7-react/src/App.jsx-ads-new">
-      <h1>Создание объявления</h1>
-      <p>Форма создания нового объявления.</p>
-    </section>
-  );
-}
-
-function EditAdPage() {
-  const { id } = useParams();
-  return (
-    <section className="page" data-easytag="id8-react/src/App.jsx-ads-edit">
-      <h1>Редактирование объявления</h1>
-      <p>ID объявления: {id}</p>
-    </section>
-  );
-}
-
-function AdViewPage() {
-  const { id } = useParams();
-  return (
-    <section className="page" data-easytag="id9-react/src/App.jsx-ads-view">
-      <h1>Просмотр объявления</h1>
-      <p>ID объявления: {id}</p>
-    </section>
   );
 }
 
@@ -131,9 +105,9 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login onSuccess={() => setAuthed(true)} />} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-            <Route path="/ads/new" element={<ProtectedRoute><NewAdPage /></ProtectedRoute>} />
-            <Route path="/ads/:id/edit" element={<ProtectedRoute><EditAdPage /></ProtectedRoute>} />
-            <Route path="/ads/:id" element={<AdViewPage />} />
+            <Route path="/ads/new" element={<ProtectedRoute><Create /></ProtectedRoute>} />
+            <Route path="/ads/:id/edit" element={<ProtectedRoute><Edit /></ProtectedRoute>} />
+            <Route path="/ads/:id" element={<Detail />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
