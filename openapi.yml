@@ -1,28 +1,19 @@
 openapi: 3.0.3
 info:
-  title: Easyapp API
-  version: 1.0.0
-  description: API documentation for easyapp
+  title: Easyapp Classifieds API
+  version: "1.0.0"
+  description: OpenAPI specification for the classifieds board (members, auth, listings, metadata).
+servers:
+  - url: /
+security:
+  - bearerAuth: []
 paths:
-  /api/hello/:
-    get:
-      operationId: api_hello_retrieve
-      description: Get a hello world message
-      tags:
-      - api
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Message'
-          description: ''
   /api/auth/register/:
     post:
-      operationId: auth_register
-      description: Register a new member
-      tags:
-      - auth
+      tags: [auth]
+      summary: Register a new member
+      description: Create a new member account.
+      security: []
       requestBody:
         required: true
         content:
@@ -38,152 +29,205 @@ paths:
                 $ref: '#/components/schemas/MemberPublic'
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/auth/login/:
     post:
-      operationId: auth_login
-      description: Authenticate member and return JWT
-      tags:
-      - auth
+      tags: [auth]
+      summary: Log in and get JWT token
+      description: Authenticate a member and obtain an access token.
+      security: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/LoginRequest'
+              $ref: '#/components/schemas/MemberLoginRequest'
       responses:
         '200':
           description: Authenticated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TokenResponse'
+                $ref: '#/components/schemas/LoginResponse'
         '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
           description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/profile/:
     get:
-      operationId: profile_get
-      description: Get current member profile
-      tags:
-      - profile
-      security:
-      - bearerAuth: []
+      tags: [profile]
+      summary: Get current member profile
       responses:
         '200':
-          description: Current member
+          description: Current member profile
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MemberPublic'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     put:
-      operationId: profile_put
-      description: Update current member profile (replace)
-      tags:
-      - profile
-      security:
-      - bearerAuth: []
+      tags: [profile]
+      summary: Update current member profile (replace)
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProfileUpdate'
+              type: object
+              description: Profile update payload (username not editable; password optional)
+              properties:
+                email:
+                  type: string
+                  nullable: true
+                phone:
+                  type: string
+                  nullable: true
+                password:
+                  type: string
+              additionalProperties: false
       responses:
         '200':
-          description: Updated member
+          description: Updated member profile
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MemberPublic'
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     patch:
-      operationId: profile_patch
-      description: Partially update current member profile
-      tags:
-      - profile
-      security:
-      - bearerAuth: []
+      tags: [profile]
+      summary: Partially update current member profile
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProfileUpdate'
+              type: object
+              description: Partial profile update (username not editable; password optional)
+              properties:
+                email:
+                  type: string
+                  nullable: true
+                phone:
+                  type: string
+                  nullable: true
+                password:
+                  type: string
+              additionalProperties: false
       responses:
         '200':
-          description: Updated member
+          description: Updated member profile
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/MemberPublic'
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/listings/:
     get:
-      operationId: listings_list
-      description: List active listings with filters
-      tags:
-      - listings
+      tags: [listings]
+      summary: List listings
+      description: List active listings with optional filters and ordering.
       parameters:
-      - in: query
-        name: category
-        schema:
-          type: string
-          enum: [cars, realty]
-      - in: query
-        name: condition
-        schema:
-          type: string
-          enum: [new, used]
-      - in: query
-        name: min_price
-        schema:
-          type: number
-      - in: query
-        name: max_price
-        schema:
-          type: number
-      - in: query
-        name: date_from
-        schema:
-          type: string
-          format: date
-      - in: query
-        name: date_to
-        schema:
-          type: string
-          format: date
-      - in: query
-        name: q
-        schema:
-          type: string
-      - in: query
-        name: ordering
-        schema:
-          type: string
-          enum: ["-created_at", "created_at"]
+        - in: query
+          name: category
+          schema:
+            type: string
+            enum: [cars, realty]
+        - in: query
+          name: condition
+          schema:
+            type: string
+            enum: [new, used]
+        - in: query
+          name: min_price
+          schema:
+            type: number
+        - in: query
+          name: max_price
+          schema:
+            type: number
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: q
+          schema:
+            type: string
+        - in: query
+          name: ordering
+          schema:
+            type: string
+            enum: ["-created_at", "created_at"]
       responses:
         '200':
-          description: List of listings
+          description: Paginated listings
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Listing'
+                type: object
+                properties:
+                  count:
+                    type: integer
+                  next:
+                    type: string
+                    format: uri
+                    nullable: true
+                  previous:
+                    type: string
+                    format: uri
+                    nullable: true
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Listing'
+                required: [count, next, previous, results]
     post:
-      operationId: listings_create
-      description: Create a new listing
-      tags:
-      - listings
-      security:
-      - bearerAuth: []
+      tags: [listings]
+      summary: Create a new listing
       requestBody:
         required: true
         content:
@@ -199,20 +243,26 @@ paths:
                 $ref: '#/components/schemas/Listing'
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/listings/{id}/:
     get:
-      operationId: listings_retrieve
-      description: Retrieve a listing
-      tags:
-      - listings
+      tags: [listings]
+      summary: Retrieve a listing
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
       responses:
         '200':
           description: Listing
@@ -222,19 +272,19 @@ paths:
                 $ref: '#/components/schemas/Listing'
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     put:
-      operationId: listings_update
-      description: Update a listing (replace)
-      tags:
-      - listings
-      security:
-      - bearerAuth: []
+      tags: [listings]
+      summary: Update a listing (replace)
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -250,25 +300,37 @@ paths:
                 $ref: '#/components/schemas/Listing'
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     patch:
-      operationId: listings_partial_update
-      description: Partially update a listing
-      tags:
-      - listings
-      security:
-      - bearerAuth: []
+      tags: [listings]
+      summary: Partially update a listing
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -284,79 +346,100 @@ paths:
                 $ref: '#/components/schemas/Listing'
         '400':
           description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
-      operationId: listings_delete
-      description: Delete a listing
-      tags:
-      - listings
-      security:
-      - bearerAuth: []
+      tags: [listings]
+      summary: Delete a listing
       parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: integer
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
       responses:
         '204':
           description: Deleted
         '401':
           description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '403':
           description: Forbidden
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
           description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   /api/meta/categories/:
     get:
-      operationId: meta_categories
-      description: List available categories
-      tags:
-      - meta
+      tags: [meta]
+      summary: Get available categories
       responses:
         '200':
-          description: Categories
+          description: Categories list
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CategoryOption'
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                      enum: [cars, realty]
+                    label:
+                      type: string
+                  required: [key, label]
   /api/meta/conditions/:
     get:
-      operationId: meta_conditions
-      description: List available conditions
-      tags:
-      - meta
+      tags: [meta]
+      summary: Get available conditions
       responses:
         '200':
-          description: Conditions
+          description: Conditions list
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ConditionOption'
+                  type: object
+                  properties:
+                    key:
+                      type: string
+                      enum: [new, used]
+                    label:
+                      type: string
+                  required: [key, label]
 components:
   schemas:
-    Message:
-      type: object
-      properties:
-        message:
-          type: string
-          maxLength: 200
-        timestamp:
-          type: string
-          format: date-time
-          readOnly: true
-      required:
-      - message
-      - timestamp
     MemberPublic:
       type: object
       properties:
@@ -375,14 +458,13 @@ components:
           type: string
           format: date-time
           readOnly: true
-      required:
-      - id
-      - username
-      - date_joined
+      required: [id, username, date_joined]
     MemberRegister:
       type: object
       properties:
         username:
+          type: string
+        password:
           type: string
         email:
           type: string
@@ -390,22 +472,16 @@ components:
         phone:
           type: string
           nullable: true
-        password:
-          type: string
-      required:
-      - username
-      - password
-    LoginRequest:
+      required: [username, password]
+    MemberLoginRequest:
       type: object
       properties:
         username:
           type: string
         password:
           type: string
-      required:
-      - username
-      - password
-    TokenResponse:
+      required: [username, password]
+    LoginResponse:
       type: object
       properties:
         access:
@@ -415,21 +491,7 @@ components:
           example: bearer
         member:
           $ref: '#/components/schemas/MemberPublic'
-      required:
-      - access
-      - token_type
-      - member
-    ProfileUpdate:
-      type: object
-      properties:
-        email:
-          type: string
-          nullable: true
-        phone:
-          type: string
-          nullable: true
-        password:
-          type: string
+      required: [access, token_type, member]
     Listing:
       type: object
       properties:
@@ -455,9 +517,6 @@ components:
           type: string
         author:
           $ref: '#/components/schemas/MemberPublic'
-        author_id:
-          type: integer
-          writeOnly: true
         created_at:
           type: string
           format: date-time
@@ -469,16 +528,17 @@ components:
         is_active:
           type: boolean
       required:
-      - id
-      - title
-      - description
-      - price
-      - category
-      - condition
-      - contact_phone
-      - contact_email
-      - created_at
-      - updated_at
+        - id
+        - title
+        - description
+        - price
+        - category
+        - condition
+        - contact_phone
+        - contact_email
+        - created_at
+        - updated_at
+        - is_active
     ListingCreateUpdate:
       type: object
       properties:
@@ -499,41 +559,20 @@ components:
           type: string
         contact_email:
           type: string
-        author_id:
-          type: integer
-          writeOnly: true
-        is_active:
-          type: boolean
       required:
-      - title
-      - description
-      - price
-      - category
-      - condition
-      - contact_phone
-      - contact_email
-    CategoryOption:
+        - title
+        - description
+        - price
+        - category
+        - condition
+        - contact_phone
+        - contact_email
+    Error:
       type: object
       properties:
-        key:
+        detail:
           type: string
-          enum: [cars, realty]
-        label:
-          type: string
-      required:
-      - key
-      - label
-    ConditionOption:
-      type: object
-      properties:
-        key:
-          type: string
-          enum: [new, used]
-        label:
-          type: string
-      required:
-      - key
-      - label
+      required: [detail]
   securitySchemes:
     bearerAuth:
       type: http
