@@ -6,6 +6,7 @@ import './App.css';
 import { Home } from './components/Home';
 import Register from './components/Auth/Register';
 import Login from './components/Auth/Login';
+import Profile from './components/Profile';
 
 function ProtectedRoute({ children }) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -38,15 +39,6 @@ function Header({ authed }) {
         </ul>
       </nav>
     </header>
-  );
-}
-
-function ProfilePage() {
-  return (
-    <section className="page" data-easytag="id6-react/src/App.jsx-profile">
-      <h1>Профиль</h1>
-      <p>Здесь будут настройки профиля и список ваших объявлений.</p>
-    </section>
   );
 }
 
@@ -138,7 +130,7 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/register" element={<Register />} />
             <Route path="/login" element={<Login onSuccess={() => setAuthed(true)} />} />
-            <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/ads/new" element={<ProtectedRoute><NewAdPage /></ProtectedRoute>} />
             <Route path="/ads/:id/edit" element={<ProtectedRoute><EditAdPage /></ProtectedRoute>} />
             <Route path="/ads/:id" element={<AdViewPage />} />
