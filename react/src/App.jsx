@@ -1,9 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Routes, Route, Link, Navigate, useNavigate, useParams } from 'react-router-dom';
+import { Routes, Route, Link, Navigate, useParams } from 'react-router-dom';
 import ErrorBoundary from './ErrorBoundary';
 import './App.css';
 
 import { Home } from './components/Home';
+import Register from './components/Auth/Register';
+import Login from './components/Auth/Login';
 
 function ProtectedRoute({ children }) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -36,32 +38,6 @@ function Header({ authed }) {
         </ul>
       </nav>
     </header>
-  );
-}
-
-// Simple placeholder pages (RU labels)
-function RegisterPage() {
-  return (
-    <section className="page" data-easytag="id4-react/src/App.jsx-register">
-      <h1>Регистрация</h1>
-      <p>Зарегистрируйтесь, чтобы публиковать объявления.</p>
-    </section>
-  );
-}
-
-function LoginPage({ onLoginSuccess }) {
-  const navigate = useNavigate();
-  const handleDemoLogin = () => {
-    localStorage.setItem('token', 'demo-token');
-    if (typeof onLoginSuccess === 'function') onLoginSuccess();
-    navigate('/profile', { replace: true });
-  };
-  return (
-    <section className="page" data-easytag="id5-react/src/App.jsx-login">
-      <h1>Вход</h1>
-      <p>Авторизуйтесь, чтобы управлять своими объявлениями.</p>
-      <button className="btn btn-primary" onClick={handleDemoLogin}>Войти (демо)</button>
-    </section>
   );
 }
 
@@ -160,8 +136,8 @@ function App() {
         <main className="main-content container" data-easytag="id3-react/src/App.jsx-main">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/login" element={<LoginPage onLoginSuccess={() => setAuthed(true)} />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login onSuccess={() => setAuthed(true)} />} />
             <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/ads/new" element={<ProtectedRoute><NewAdPage /></ProtectedRoute>} />
             <Route path="/ads/:id/edit" element={<ProtectedRoute><EditAdPage /></ProtectedRoute>} />
