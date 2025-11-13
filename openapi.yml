@@ -10,10 +10,6 @@ paths:
       description: Get a hello world message
       tags:
       - api
-      security:
-      - cookieAuth: []
-      - basicAuth: []
-      - {}
       responses:
         '200':
           content:
@@ -21,6 +17,113 @@ paths:
               schema:
                 $ref: '#/components/schemas/Message'
           description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register
+      description: Register a new member
+      tags:
+      - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberRegister'
+      responses:
+        '201':
+          description: Member created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPublic'
+        '400':
+          description: Validation error
+  /api/auth/login/:
+    post:
+      operationId: auth_login
+      description: Authenticate member and return JWT
+      tags:
+      - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Invalid credentials
+  /api/profile/:
+    get:
+      operationId: profile_get
+      description: Get current member profile
+      tags:
+      - profile
+      security:
+      - bearerAuth: []
+      responses:
+        '200':
+          description: Current member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPublic'
+        '401':
+          description: Unauthorized
+    put:
+      operationId: profile_put
+      description: Update current member profile (replace)
+      tags:
+      - profile
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+      responses:
+        '200':
+          description: Updated member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPublic'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+    patch:
+      operationId: profile_patch
+      description: Partially update current member profile
+      tags:
+      - profile
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdate'
+      responses:
+        '200':
+          description: Updated member
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MemberPublic'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
 components:
   schemas:
     Message:
@@ -36,11 +139,81 @@ components:
       required:
       - message
       - timestamp
+    MemberPublic:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        date_joined:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - username
+      - date_joined
+    MemberRegister:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        password:
+          type: string
+      required:
+      - username
+      - password
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+      - username
+      - password
+    TokenResponse:
+      type: object
+      properties:
+        access:
+          type: string
+        token_type:
+          type: string
+          example: bearer
+        member:
+          $ref: '#/components/schemas/MemberPublic'
+      required:
+      - access
+      - token_type
+      - member
+    ProfileUpdate:
+      type: object
+      properties:
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        password:
+          type: string
   securitySchemes:
-    basicAuth:
+    bearerAuth:
       type: http
-      scheme: basic
-    cookieAuth:
-      type: apiKey
-      in: cookie
-      name: sessionid
+      scheme: bearer
+      bearerFormat: JWT
