@@ -124,6 +124,224 @@ paths:
           description: Validation error
         '401':
           description: Unauthorized
+  /api/listings/:
+    get:
+      operationId: listings_list
+      description: List active listings with filters
+      tags:
+      - listings
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+          enum: [cars, realty]
+      - in: query
+        name: condition
+        schema:
+          type: string
+          enum: [new, used]
+      - in: query
+        name: min_price
+        schema:
+          type: number
+      - in: query
+        name: max_price
+        schema:
+          type: number
+      - in: query
+        name: date_from
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: date_to
+        schema:
+          type: string
+          format: date
+      - in: query
+        name: q
+        schema:
+          type: string
+      - in: query
+        name: ordering
+        schema:
+          type: string
+          enum: ["-created_at", "created_at"]
+      responses:
+        '200':
+          description: List of listings
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Listing'
+    post:
+      operationId: listings_create
+      description: Create a new listing
+      tags:
+      - listings
+      security:
+      - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingCreateUpdate'
+      responses:
+        '201':
+          description: Created listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+  /api/listings/{id}/:
+    get:
+      operationId: listings_retrieve
+      description: Retrieve a listing
+      tags:
+      - listings
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '404':
+          description: Not found
+    put:
+      operationId: listings_update
+      description: Update a listing (replace)
+      tags:
+      - listings
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingCreateUpdate'
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+    patch:
+      operationId: listings_partial_update
+      description: Partially update a listing
+      tags:
+      - listings
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ListingCreateUpdate'
+      responses:
+        '200':
+          description: Updated listing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Listing'
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+    delete:
+      operationId: listings_delete
+      description: Delete a listing
+      tags:
+      - listings
+      security:
+      - bearerAuth: []
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: Deleted
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+  /api/meta/categories/:
+    get:
+      operationId: meta_categories
+      description: List available categories
+      tags:
+      - meta
+      responses:
+        '200':
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryOption'
+  /api/meta/conditions/:
+    get:
+      operationId: meta_conditions
+      description: List available conditions
+      tags:
+      - meta
+      responses:
+        '200':
+          description: Conditions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ConditionOption'
 components:
   schemas:
     Message:
@@ -212,6 +430,110 @@ components:
           nullable: true
         password:
           type: string
+    Listing:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+          enum: [cars, realty]
+        condition:
+          type: string
+          enum: [new, used]
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        author:
+          $ref: '#/components/schemas/MemberPublic'
+        author_id:
+          type: integer
+          writeOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_active:
+          type: boolean
+      required:
+      - id
+      - title
+      - description
+      - price
+      - category
+      - condition
+      - contact_phone
+      - contact_email
+      - created_at
+      - updated_at
+    ListingCreateUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: number
+        category:
+          type: string
+          enum: [cars, realty]
+        condition:
+          type: string
+          enum: [new, used]
+        contact_phone:
+          type: string
+        contact_email:
+          type: string
+        author_id:
+          type: integer
+          writeOnly: true
+        is_active:
+          type: boolean
+      required:
+      - title
+      - description
+      - price
+      - category
+      - condition
+      - contact_phone
+      - contact_email
+    CategoryOption:
+      type: object
+      properties:
+        key:
+          type: string
+          enum: [cars, realty]
+        label:
+          type: string
+      required:
+      - key
+      - label
+    ConditionOption:
+      type: object
+      properties:
+        key:
+          type: string
+          enum: [new, used]
+        label:
+          type: string
+      required:
+      - key
+      - label
   securitySchemes:
     bearerAuth:
       type: http
