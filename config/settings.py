@@ -71,6 +71,11 @@ INSTALLED_APPS = [
 # REST Framework configuration
 REST_FRAMEWORK = {
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 # drf-spectacular configuration
@@ -162,3 +167,8 @@ STATIC_URL = "django_static/"
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Application JWT settings
+APP_JWT_SECRET = "change_this_secret"
+APP_JWT_ALGORITHM = "HS256"
+APP_JWT_EXPIRES_SECONDS = 86400
