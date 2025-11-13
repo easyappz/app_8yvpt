@@ -10,6 +10,7 @@ import Profile from './components/Profile';
 import Create from './components/Listings/Create';
 import Edit from './components/Listings/Edit';
 import Detail from './components/Listings/Detail';
+import About from './components/About';
 
 function ProtectedRoute({ children }) {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
@@ -42,15 +43,6 @@ function Header({ authed }) {
         </ul>
       </nav>
     </header>
-  );
-}
-
-function AboutPage() {
-  return (
-    <section className="page" data-easytag="id10-react/src/App.jsx-about">
-      <h1>О проекте</h1>
-      <p>Платформа для размещения объявлений: автомобили и недвижимость.</p>
-    </section>
   );
 }
 
@@ -108,7 +100,7 @@ function App() {
             <Route path="/ads/new" element={<ProtectedRoute><Create /></ProtectedRoute>} />
             <Route path="/ads/:id/edit" element={<ProtectedRoute><Edit /></ProtectedRoute>} />
             <Route path="/ads/:id" element={<Detail />} />
-            <Route path="/about" element={<AboutPage />} />
+            <Route path="/about" element={<About />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </main>
